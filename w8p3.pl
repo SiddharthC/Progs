@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Program to count the occurances of a specific fields and to print them in a formatted manner.
+# Program to display information for BED file passed in parameter.
 
 use strict;
 use warnings;

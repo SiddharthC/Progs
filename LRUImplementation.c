@@ -27,8 +27,8 @@ typedef struct Hash{
 
 }Hash;
 
-Hash* createHash(int capaacity){
-    Hash* hash = (Hash *)maalloc (sizeof(Hash));
+Hash* createHash(int capacity){
+    Hash* hash = (Hash *)malloc (sizeof(Hash));
     hash->capacity = capacity;
     
     hash->array = (Hash **) malloc(hash->capacity* sizeof(QNode *));
@@ -102,7 +102,7 @@ void enQueue(Queue *queue, Hash *hash, unsigned pageNum){
 
 void ReferencePage(Queue *queue, Hash *hash, unsigned pageNum){  //This is the important function
     
-    Queue *reqPage = hash->array[paageNum];
+    Queue *reqPage = hash->array[pageNum];
     
     if(reqPage == NULL){
         enQueue(queue, hash, pageNum);

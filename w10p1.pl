@@ -65,16 +65,12 @@ open(my $fh2, "<", $file2) or die "Can't open file: $file2\n";
 exit if (!($linef2 = <$fh2>));
 chomp $linef2;
 @cols = split("\t", $linef2);
+if (($startf2 > $cols[1]) && ($tagf2 eq $cols[0])){
+	print "The file $file2 is not sorted. Program is exiting.\n";
+	exit;
+}
 $tagf2 = $cols[0];
-if ($startf2 > $cols[1]){
-	print "The file $file2 is not sorted. Program is exiting.\n";
-	exit;
-}
 $startf2 = $cols[1];
-if ($endf2 > $cols[2]){
-	print "The file $file2 is not sorted. Program is exiting.\n";
-	exit;
-}
 $endf2 = $cols[2];
 $strf2 = $cols[5] if defined $cols[5];
 
@@ -82,50 +78,49 @@ while($linef1 = <$fh1>){
 	$coverage=0;
 	chomp $linef1;
 	@cols = split("\t", $linef1);
+
+	if (($startf1 > $cols[1]) && ($tagf1 eq $cols[0])){
+		print "The file $file1 column 1 is not sorted. Program is exiting.\n";
+		exit;
+	}
 	$tagf1 = $cols[0];
-	if ($startf1 > $cols[1]){
-		print "The file $file1 is not sorted. Program is exiting.\n";
-		exit;
-	}
 	$startf1 = $cols[1];
-	if ($endf1 > $cols[2]){
-		print "The file $file1 is not sorted. Program is exiting.\n";
-		exit;
-	}
 	$endf1 = $cols[2];
 	$strf1 = $cols[5] if defined $cols[5];
 
 	while (1){
+#		print "$linef2\n";
 		$maxStart_temp = max($startf1, $startf2);
 		$minEnd_temp = min($endf1, $endf2);
-		if ($rcoverage_flag){
-			$coverage += ($minEnd_temp - $maxStart_temp)/($endf1 - $startf1) if (($minEnd_temp - $maxStart_temp)/($endf1 - $startf1) > 0);
-		}
-		else{
-			$coverage = ($minEnd_temp - $maxStart_temp)/($endf1 - $startf1) if (($minEnd_temp - $maxStart_temp)/($endf1 - $startf1) > 0);	
+		if($endf1 != $startf1){
+			if ($rcoverage_flag){
+				$coverage += ($minEnd_temp - $maxStart_temp)/($endf1 - $startf1) if (($minEnd_temp - $maxStart_temp)/($endf1 - $startf1) > 0);
+			}
+			else{
+				$coverage = ($minEnd_temp - $maxStart_temp)/($endf1 - $startf1) if (($minEnd_temp - $maxStart_temp)/($endf1 - $startf1) > 0);	
+			}
+			$coverage = 1 if ($coverage > 1);
 		}
 		
 		last if(($startf2 > $endf1)&&($tagf1 eq $tagf2));
-		last if (!($linef2_temp = <$fh2>));
-		$linef2 = $linef2_temp;
+		if(!($linef2 = <$fh2>)){
+			last;
+		}
 		chomp $linef2;
 		@cols = split("\t", $linef2);
+		if (($startf2 > $cols[1])&& ($tagf2 eq $cols[0])){
+			print "The file $file2 is not sorted. Program is exiting.\n";
+			exit;
+		}
 		$tagf2 = $cols[0];
-		if ($startf2 > $cols[1]){
-			print "The file $file2 is not sorted. Program is exiting.\n";
-			exit;
-		}
 		$startf2 = $cols[1];
-		if ($endf2 > $cols[2]){
-			print "The file $file2 is not sorted. Program is exiting.\n";
-			exit;
-		}
 		$endf2 = $cols[2];
 		$strf2 = $cols[5] if defined $cols[5];
+		last if($tagf1 ne $tagf2);
 	}
 
 
-	if(($coverage*100 >= $per_over) || ($coverage > 0 && $rcoverage_flag)){
+	if($coverage*100 >= $per_over){
 		if($joinFlag){
 			if($str_cond_flag)
 			{
